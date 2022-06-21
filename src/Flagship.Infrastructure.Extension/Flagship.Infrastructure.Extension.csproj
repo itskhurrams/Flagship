@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.6" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="6.0.0" />
+    <PackageReference Include="Serilog" Version="2.11.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Flagship.Application\Flagship.Application.csproj" />
+    <ProjectReference Include="..\Flagship.Core\Flagship.Core.csproj" />
+    <ProjectReference Include="..\Flagship.Infrastructure.Caching\Flagship.Infrastructure.Caching.csproj" />
+    <ProjectReference Include="..\Flagship.Infrastructure.Persistance\Flagship.Infrastructure.Persistance.csproj" />
+  </ItemGroup>
+
+</Project>
