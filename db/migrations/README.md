@@ -1,12 +1,13 @@
-# Password-hashing migration (draft — not applied)
+# Draft migrations — not applied
 
-These scripts back the app-code change that made `UserRepository.Login` verify a
-PBKDF2 password hash in C# instead of having SQL compare a plaintext password
-(`usp_User_GetByLoginNameAndPassword`). None of this has been run against any
-database — review and adjust table/column names to match the real schema, then
-apply in order.
+Two independent app-code changes need matching schema changes. Neither has been
+run against any database — review and adjust table/column names to match the
+real schema before applying.
 
-## Rollout order
+- `001`–`002`: password hashing (`UserRepository.Login`).
+- `003`–`004`: refresh-token rotation (`RefreshTokenService`, `RefreshTokenRepository`).
+
+## Password hashing rollout order
 
 1. **`001_add_login_password_hash_column.sql`** — adds the nullable
    `login_password_hash` column.
@@ -54,3 +55,30 @@ salt, a 32-byte derived key, and 210,000 iterations (OWASP's current minimum
 recommendation for PBKDF2-SHA256). `PasswordHasher.Verify` reads the iteration
 count back out of the stored hash, so raising `Iterations` later doesn't
 invalidate hashes already written.
+
+## Refresh-token rollout order
+
+1. **`003_create_refresh_tokens_table.sql`** — creates `dbo.RefreshTokens`
+   (adjust the `FK_RefreshTokens_Users` reference if your `Users` table or PK
+   column is named differently).
+2. **`004_create_refresh_token_procs.sql`** — creates the four supporting
+   procedures (`Insert`, `GetByTokenHash`, `Revoke`, `RevokeAllForUser`).
+3. Deploy the updated application code (already done in this branch) —
+   `POST /api/v1/Account/Authenticate` now also returns a `RefreshToken` in the
+   response's `AdditionalData`, and `POST /api/v1/Account/RefreshToken` exchanges
+   a still-valid refresh token for a new access token + a new refresh token.
+
+### Design notes
+
+- Refresh tokens are opaque 256-bit random values (base64url), never JWTs —
+  only their SHA-256 hash is stored, so a database read can't be replayed as a
+  usable token. This replaces the old unused `TokenAuthentication:JWTRefreshTokenKey`
+  config value, which has been removed.
+- **Rotation with reuse detection**: each successful refresh revokes the token
+  just used and issues a new one (`replaced_by_token_hash` records the chain).
+  If an already-revoked token is presented again — a strong signal of a stolen
+  or replayed token — `RefreshTokenService.Rotate` revokes *every* refresh token
+  for that user, forcing re-authentication everywhere.
+- `POST /api/v1/Account/Logout` now also revokes all of a user's refresh tokens,
+  in addition to the existing `LoginLog` session-token bookkeeping (a separate,
+  pre-existing audit mechanism this doesn't replace).

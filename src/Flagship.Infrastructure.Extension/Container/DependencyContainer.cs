@@ -17,12 +17,14 @@ namespace Flagship.Infrastructure.Extension.Container {
             services.AddTransient<IUserService, UserService>();
             services.AddTransient<ILoginLogService, LoginLogService>();
             services.AddTransient<ITerritoryService, TerritoryService>();
+            services.AddTransient<IRefreshTokenService, RefreshTokenService>();
         }
         private static void RepositoryRegistration(IServiceCollection services) {
             services.AddTransient<IBaseRepository, BaseRepository>();
             services.AddTransient<IUserRepository, UserRepository>();
             services.AddTransient<ILoginLogRepository, LoginLogRepository>();
             services.AddTransient<ITerritoryRepository, TerritoryRepository>();
+            services.AddTransient<IRefreshTokenRepository, RefreshTokenRepository>();
             services.AddScoped<IMemoryCacheProvider, MemoryCacheProvider>();
         }
 
