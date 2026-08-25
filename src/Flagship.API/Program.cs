@@ -17,7 +17,16 @@ try {
         .ReadFrom.Services(services)
         .Enrich.FromLogContext());
 
-    builder.Services.AddCors(corsOptions => corsOptions.AddDefaultPolicy(policy => policy.WithOrigins(builder.Configuration["OriginConfiguration:AllowOrigins"]).AllowAnyHeader().AllowAnyMethod()));
+    var allowedOrigins = (builder.Configuration["OriginConfiguration:AllowOrigins"] ?? string.Empty)
+        .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+    builder.Services.AddCors(corsOptions => corsOptions.AddDefaultPolicy(policy => {
+        policy.AllowAnyHeader().AllowAnyMethod();
+        if (allowedOrigins.Length == 1 && allowedOrigins[0] == "*")
+            policy.SetIsOriginAllowed(_ => true);
+        else
+            policy.WithOrigins(allowedOrigins);
+    }));
     builder.Services.AddControllers();
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen();
