@@ -5,11 +5,11 @@
         public Int64 UserId { get; set; }
         public DateTime LoginTime { get; set; }
         public DateTime? LogoutTime { get; set; }
-        public string MachineName { get; set; }
-        public string IPAddress { get; set; }
-        public string ServerName { get; set; }
+        public string MachineName { get; set; } = string.Empty;
+        public string IPAddress { get; set; } = string.Empty;
+        public string ServerName { get; set; } = string.Empty;
         public Int16? ActionType { get; set; }
         public DateTime? ActionTime { get; set; }
-        public string SessionToken { get; set; }
+        public string SessionToken { get; set; } = string.Empty;
     }
 }
