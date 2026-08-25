@@ -33,20 +33,18 @@ namespace Flagship.Infrastructure.Logging.Applogger {
             if (!Log.IsEnabled(Serilog.Events.LogEventLevel.Debug)) return;
             var trace = new StackTrace();
             if (trace.FrameCount <= 1) return;
-            var declaringType = trace.GetFrame(1).GetMethod().DeclaringType;
-
-            if (declaringType != null)
-                LogDebug($"Entering {declaringType.Name}.{trace.GetFrame(1).GetMethod().Name}");
+            var method = trace.GetFrame(1)?.GetMethod();
+            if (method?.DeclaringType != null)
+                LogDebug($"Entering {method.DeclaringType.Name}.{method.Name}");
         }
 
         public void LogExit() {
             if (!Log.IsEnabled(Serilog.Events.LogEventLevel.Debug)) return;
             var trace = new StackTrace();
             if (trace.FrameCount <= 1) return;
-            var declaringType = trace.GetFrame(1).GetMethod().DeclaringType;
-
-            if (declaringType != null)
-                LogDebug($"Exiting {declaringType.Name}.{trace.GetFrame(1).GetMethod().Name}");
+            var method = trace.GetFrame(1)?.GetMethod();
+            if (method?.DeclaringType != null)
+                LogDebug($"Exiting {method.DeclaringType.Name}.{method.Name}");
         }
     }
 }

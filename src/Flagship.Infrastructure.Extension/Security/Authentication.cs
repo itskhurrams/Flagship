@@ -8,7 +8,11 @@ using System.Text;
 namespace Flagship.Infrastructure.Extension.Security {
     public class Authentication {
         public static void AddAuthenication(IServiceCollection services, IConfiguration configuration) {
-            var signingKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(configuration["TokenAuthentication:SecretKey"]));
+            var configuredSecretKey = configuration["TokenAuthentication:SecretKey"];
+            var secretKey = !string.IsNullOrWhiteSpace(configuredSecretKey)
+                ? configuredSecretKey
+                : throw new InvalidOperationException("Missing required configuration value 'TokenAuthentication:SecretKey'. Set it via User Secrets or an environment variable.");
+            var signingKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(secretKey));
 
             var tokenValidationParams = new TokenValidationParameters {
                 ValidateIssuerSigningKey = true,
