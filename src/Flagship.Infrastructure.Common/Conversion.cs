@@ -1,6 +1,6 @@
 ﻿namespace Flagship.Infrastructure.Common {
     public static class Conversion {
-        public static bool ToBool(object value) {
+        public static bool ToBool(object? value) {
             try {
                 if (value != null && value != DBNull.Value && value.ToString() != string.Empty)
                     return Convert.ToBoolean(value);
@@ -19,10 +19,10 @@
                 }
             }
         }
-        public static Guid ToGuid(object value) {
+        public static Guid ToGuid(object? value) {
             try {
                 if (value != null && value != DBNull.Value && value.ToString() != string.Empty)
-                    return Guid.Parse(Convert.ToString(value));
+                    return Guid.Parse(Convert.ToString(value) ?? string.Empty);
                 else
                     return Guid.Empty;
             }
@@ -30,10 +30,10 @@
                 return Guid.Empty;
             }
         }
-        public static string ToString(object value) {
+        public static string ToString(object? value) {
             try {
                 if (value != null && value != DBNull.Value && value.ToString() != string.Empty)
-                    return Convert.ToString(value);
+                    return Convert.ToString(value) ?? string.Empty;
                 else
                     return string.Empty;
             }
@@ -41,7 +41,7 @@
                 return string.Empty;
             }
         }
-        public static TimeSpan ToTimeSpan(object value) {
+        public static TimeSpan ToTimeSpan(object? value) {
             try {
                 if (value != null && value != DBNull.Value && value.ToString() != string.Empty)
                     return (TimeSpan)value;
@@ -52,7 +52,7 @@
                 return new TimeSpan(0, 0, 0);
             }
         }
-        public static int ToInt(object value) {
+        public static int ToInt(object? value) {
             try {
                 if (value != null && value != DBNull.Value && value.ToString() != string.Empty)
                     return Convert.ToInt32(value);
@@ -63,7 +63,7 @@
                 return 0;
             }
         }
-        public static byte ToByte(object value) {
+        public static byte ToByte(object? value) {
             try {
                 if (value != null && value != DBNull.Value && value.ToString() != string.Empty)
                     return Convert.ToByte(value);
@@ -74,7 +74,7 @@
                 return 0;
             }
         }
-        public static short ToShort(object value) {
+        public static short ToShort(object? value) {
             try {
                 if (value != null && value != DBNull.Value && value.ToString() != string.Empty)
                     return Convert.ToInt16(value);
@@ -85,7 +85,7 @@
                 return 0;
             }
         }
-        public static Int64 ToInt64(object value) {
+        public static Int64 ToInt64(object? value) {
             try {
                 if (value != null && value != DBNull.Value && value.ToString() != string.Empty)
                     return Convert.ToInt64(value);
@@ -96,7 +96,7 @@
                 return 0;
             }
         }
-        public static Int64 ToLong(object value) {
+        public static Int64 ToLong(object? value) {
             try {
                 if (value != null && value != DBNull.Value && value.ToString() != string.Empty)
                     return Convert.ToInt64(value);
@@ -107,7 +107,7 @@
                 return 0;
             }
         }
-        public static Decimal ToDecimal(object value) {
+        public static Decimal ToDecimal(object? value) {
             try {
                 if (value != null && value != DBNull.Value && value.ToString() != string.Empty)
                     return Convert.ToDecimal(value);
@@ -118,7 +118,7 @@
                 return 0;
             }
         }
-        public static double ToDouble(object value) {
+        public static double ToDouble(object? value) {
             try {
                 if (value != null && value != DBNull.Value && value.ToString() != string.Empty)
                     return Convert.ToDouble(value);
@@ -129,7 +129,7 @@
                 return 0;
             }
         }
-        public static float ToSingle(object value) {
+        public static float ToSingle(object? value) {
             try {
                 if (value != null && value != DBNull.Value && value.ToString() != string.Empty)
                     return Convert.ToSingle(value);
@@ -140,7 +140,7 @@
                 return 0;
             }
         }
-        public static DateTime ToDateTime(object value) {
+        public static DateTime ToDateTime(object? value) {
             try {
                 if (value != null && value != DBNull.Value && value.ToString() != string.Empty)
                     return Convert.ToDateTime(value);
@@ -151,10 +151,10 @@
                 return new DateTime(1900, 1, 1);
             }
         }
-        public static string ToHash(object value) {
+        public static string ToHash(object? value) {
             try {
                 if (value != null && value != DBNull.Value && value.ToString() != string.Empty)
-                    return value.ToString();
+                    return value.ToString() ?? string.Empty;
                 else
                     return string.Empty;
             }
@@ -162,7 +162,7 @@
                 return string.Empty;
             }
         }
-        public static Byte[] ToByteArray(object value) {
+        public static Byte[]? ToByteArray(object? value) {
             try {
                 if (value != null && value != DBNull.Value && value.ToString() != string.Empty)
                     return (Byte[])(value);
