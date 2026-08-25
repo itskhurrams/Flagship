@@ -8,7 +8,7 @@ namespace Flagship.Infrastructure.Caching {
         public MemoryCacheProvider(IMemoryCache memorycache) {
             _memorycache = memorycache;
         }
-        public T GetFromCache<T>(string key) where T : class {
+        public T? GetFromCache<T>(string key) where T : class {
             var cachedResponse = _memorycache.Get(key);
             return cachedResponse as T;
         }
