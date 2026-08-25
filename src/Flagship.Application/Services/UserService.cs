@@ -18,11 +18,11 @@ namespace Flagship.Application.Services {
             _userRepository = userRepository;
             _configuration = configuration;
         }
-        public async Task<User> Login(string loginName, string loginPassword)
+        public async Task<User?> Login(string loginName, string loginPassword)
         {
             return await _userRepository.Login(loginName, loginPassword);
         }
-        public async Task<User> GetById(Int64 userId)
+        public async Task<User?> GetById(Int64 userId)
         {
             return await _userRepository.GetAllById(userId);
         }
@@ -46,7 +46,11 @@ namespace Flagship.Application.Services {
                 new Claim(ClaimTypes.Name, userName),
              };
 
-            var signingKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_configuration["TokenAuthentication:SecretKey"]));
+            var configuredSecretKey = _configuration["TokenAuthentication:SecretKey"];
+            var secretKey = !string.IsNullOrWhiteSpace(configuredSecretKey)
+                ? configuredSecretKey
+                : throw new InvalidOperationException("Missing required configuration value 'TokenAuthentication:SecretKey'. Set it via User Secrets or an environment variable.");
+            var signingKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(secretKey));
 
             var jwt = new JwtSecurityToken(
                 issuer: _configuration["TokenAuthentication:Issuer"],
