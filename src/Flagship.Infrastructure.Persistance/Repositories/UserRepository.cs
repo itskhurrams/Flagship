@@ -20,7 +20,7 @@ namespace Flagship.Infrastructure.Persistance.Repositories {
         private const string ProcUserGetAll = "usp_User_GetAll";
         private const string ProcUserGetAllActive = "usp_User_GetAllActive";
         private const string ProcUserGetUserById = "usp_User_GetByUser_Id";
-        private const string ProcUserGetByLoginNameAndPassword = "usp_User_GetByLoginNameAndPassword";
+        private const string ProcUserGetByLoginName = "usp_User_GetByLoginName";
         #endregion
 
         #region SQL Table Columns
@@ -29,7 +29,7 @@ namespace Flagship.Infrastructure.Persistance.Repositories {
         private const string DISPLAYNAME = "display_name";
         private const string FIRSTNAME = "first_name";
         private const string LASTNAME = "last_name";
-        private const string LOGINPASSWORD = "login_password";
+        private const string LOGINPASSWORDHASH = "login_password_hash";
         private const string ISACTIVE = "is_active";
         private const string CREATEDBY = "created_by";
         private const string CREATEDDATE = "created_date";
@@ -51,7 +51,6 @@ namespace Flagship.Infrastructure.Persistance.Repositories {
                             User user = new User() {
                                 UserId = Conversion.ToInt(reader[USERID]),
                                 LoginName = Conversion.ToString(reader[LOGINNAME]),
-                                LoginPassword = Conversion.ToString(reader[LOGINPASSWORD]),
                                 FirstName = Conversion.ToString(reader[FIRSTNAME]),
                                 LastName = Conversion.ToString(reader[LASTNAME]),
                                 DisplayName = Conversion.ToString(reader[DISPLAYNAME]),
@@ -81,7 +80,6 @@ namespace Flagship.Infrastructure.Persistance.Repositories {
                     User user = new User() {
                         UserId = Conversion.ToInt(reader[USERID]),
                         LoginName = Conversion.ToString(reader[LOGINNAME]),
-                        LoginPassword = Conversion.ToString(reader[LOGINPASSWORD]),
                         FirstName = Conversion.ToString(reader[FIRSTNAME]),
                         LastName = Conversion.ToString(reader[LASTNAME]),
                         DisplayName = Conversion.ToString(reader[DISPLAYNAME]),
@@ -100,8 +98,8 @@ namespace Flagship.Infrastructure.Persistance.Repositories {
 
             return users;
         }
-        public async Task<User> GetAllById(Int64 userId) {
-            User user = null;
+        public async Task<User?> GetAllById(Int64 userId) {
+            User? user = null;
 
             using (SqlConnection sqlConnection = _baseRepository.GetConnection()) {
                 using SqlCommand sqlCommand = _baseRepository.GetSqlCommand(sqlConnection, ProcUserGetUserById, true);
@@ -112,7 +110,6 @@ namespace Flagship.Infrastructure.Persistance.Repositories {
                     user = new User() {
                         UserId = Conversion.ToInt(reader[USERID]),
                         LoginName = Conversion.ToString(reader[LOGINNAME]),
-                        LoginPassword = Conversion.ToString(reader[LOGINPASSWORD]),
                         FirstName = Conversion.ToString(reader[FIRSTNAME]),
                         LastName = Conversion.ToString(reader[LASTNAME]),
                         DisplayName = Conversion.ToString(reader[DISPLAYNAME]),
@@ -129,15 +126,18 @@ namespace Flagship.Infrastructure.Persistance.Repositories {
 
             return user;
         }
-        public async Task<User> Login(string loginName, string loginPassword) {
-            User user = null;
+        public async Task<User?> Login(string loginName, string loginPassword) {
+            User? user = null;
             using (SqlConnection sqlConnection = _baseRepository.GetConnection()) {
-                using SqlCommand sqlCommand = _baseRepository.GetSqlCommand(sqlConnection, ProcUserGetByLoginNameAndPassword);
+                using SqlCommand sqlCommand = _baseRepository.GetSqlCommand(sqlConnection, ProcUserGetByLoginName, true);
                 sqlCommand.Parameters.Add(_baseRepository.GetInParameter("@LoginName", SqlDbType.NVarChar, loginName));
-                sqlCommand.Parameters.Add(_baseRepository.GetInParameter("@LoginPassword", SqlDbType.NVarChar, loginPassword));
-                
+
                 using var reader = await sqlCommand.ExecuteReaderAsync();
                 while (await reader.ReadAsync()) {
+                    var storedPasswordHash = Conversion.ToString(reader[LOGINPASSWORDHASH]);
+                    if (string.IsNullOrEmpty(storedPasswordHash) || !PasswordHasher.Verify(loginPassword, storedPasswordHash))
+                        continue;
+
                     user = new User() {
                         UserId = Conversion.ToInt(reader[USERID]),
                         LoginName = Conversion.ToString(reader[LOGINNAME]),

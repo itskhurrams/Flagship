@@ -9,7 +9,10 @@ namespace Flagship.Infrastructure.Persistance.Repositories {
         private readonly IConfiguration _configuration;
         public BaseRepository(IConfiguration configuration) {
             _configuration = configuration;
-            ConnectionString = _configuration["ConnectionStrings:FlagshipConnectionString"];
+            var connectionString = _configuration["ConnectionStrings:FlagshipConnectionString"];
+            ConnectionString = !string.IsNullOrWhiteSpace(connectionString)
+                ? connectionString
+                : throw new InvalidOperationException("Missing required configuration value 'ConnectionStrings:FlagshipConnectionString'. Set it via User Secrets or an environment variable.");
         }
         public string GetConnectionString() {
             return ConnectionString;
